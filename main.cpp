@@ -25,5 +25,6 @@ int main(int argc, char* argv[])
 	{
 		std::cout <<  " rnd_array[" << i << "] = 0x" << std::hex << static_cast<int>(rnd_array[i]) << std::endl;
 	}
+	std::cout << std::dec;
    	return 2;
    	}
