@@ -54,7 +54,7 @@ $(CLI): $(CLIOBJS)
 # Build Commands
 
 main.o: main.cpp
-	$(CXX) $(BUILD_FLAGS)  -I../../botan/build/include -I../../build/include/external -c main.cpp -o $@
+	$(CXX) $(BUILD_FLAGS)  -I../../botan/build/include -I../../botan/build/include/external -I../../botan/tests/data/x509/ecc -c main.cpp -o $@
 
 
 
