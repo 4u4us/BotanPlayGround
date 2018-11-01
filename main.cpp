@@ -61,6 +61,7 @@ int main(int argc, char* argv[])
     std::cout << "-- Importing to a token a PKCS11 X509: " << std::endl;
     //Botan::X509_Certificate root("../../botan/src/tests/data/x509/nist/root.crt");
     Botan::X509_Certificate root("../../botan/src/tests/data/x509/ecc/root2_SHA256.cer");
+    
     // set props
     Botan::PKCS11::X509_CertificateProperties props(
         Botan::DER_Encoder().encode(root.subject_dn()).get_contents_unlocked(), root.BER_encode() );
@@ -93,8 +94,16 @@ int main(int argc, char* argv[])
     finder.finish();
     Botan::PKCS11::PKCS11_X509_Certificate pkcs11_cert3( aSession, search_result.at(0) );
     std::cout << "--          Loaded handle: " << pkcs11_cert3.handle()  << std::endl;
-    
+        
     aSession.logoff();
+    
+    std::cout << "-- root.to_string() --" << std::endl;
+    std::cout << root.to_string();
+    std::cout << "----------------------" << std::endl;
+    
+    std::cout << "-- pkcs11_cert3.to_string() --" << std::endl;
+    std::cout << pkcs11_cert3.to_string();
+    std::cout << "----------------------" << std::endl;
     
     // Re-init the token with e.g command line:
     // softhsm2-util --init-token --token "Token-1" --label "Token-1"
