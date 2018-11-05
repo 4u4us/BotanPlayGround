@@ -19,7 +19,7 @@ EXE_LINK_CMD   = $(LINKER) -Wl,-rpath=\$$ORIGIN
 POST_LINK_CMD  = 
 
 LIB_LINKS_TO   = -ldl -lrt
-EXE_LINKS_TO   = -L. -lbotan-2 $(LIB_LINKS_TO)
+EXE_LINKS_TO   = -L. -lbotan-2 -lgtest -lgmock $(LIB_LINKS_TO)
 
 BUILD_FLAGS    = $(ABI_FLAGS) $(LANG_FLAGS) $(CXXFLAGS) $(WARN_FLAGS)
 
@@ -32,7 +32,7 @@ all: cli
 # Executable targets
 CLI           = ./botanTestApp
 #LIBRARIES     = ./libbotan-2.a ./libbotan-2.so.8
-LIBRARIES     = ./libbotan-2.a
+LIBRARIES     = ./libbotan-2.a /usr/lib/libgtest.a /usr/lib/libgmock.a /usr/lib/libgtest_main.a /usr/lib/libgmock_main.a
 
 cli: $(CLI)
 

@@ -3,6 +3,9 @@
 #include <string>
 #include <sstream>
 
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 #include <botan/rng.h>
 #include <botan/auto_rng.h>
 #include <botan/p11_x509.h>
@@ -15,8 +18,22 @@
 using namespace Botan;
 using namespace PKCS11;
 
+//_____________________________________________________________________________________
+using testing::Return; // for gmock
+class X509_Certificate_MOCK : public X509_Certificate
+   {
+    public:
+        X509_Certificate_MOCK(const std::string& fname) : X509_Certificate(fname) {};
+        MOCK_METHOD0(x509_version, uint32_t(void));
+
+   };
+//_____________________________________________________________________________________
+
 int main(int argc, char* argv[])
     {
+    // Re-init the token with e.g command line:
+    // softhsm2-util --init-token --token "Token-1" --label "Token-1"
+    
     std::cout << "Botan Test App" << std::endl;
 	int rnd_array_len = 10;
 	uint8_t rnd_array[rnd_array_len];
@@ -76,7 +93,7 @@ int main(int argc, char* argv[])
     // load by handle
     Botan::PKCS11::PKCS11_X509_Certificate pkcs11_cert2( aSession, pkcs11_cert.handle() );
     std::cout << "--    Loaded handle: " << pkcs11_cert2.handle()  << std::endl;
-    
+   
     // logoff
     aSession.logoff();
     
@@ -95,18 +112,32 @@ int main(int argc, char* argv[])
     Botan::PKCS11::PKCS11_X509_Certificate pkcs11_cert3( aSession, search_result.at(0) );
     std::cout << "--          Loaded handle: " << pkcs11_cert3.handle()  << std::endl;
         
-    aSession.logoff();
-    
     std::cout << "-- root.to_string() --" << std::endl;
-    std::cout << root.to_string();
+    std::cout << root.to_string() << std::endl;
     std::cout << "----------------------" << std::endl;
     
     std::cout << "-- pkcs11_cert3.to_string() --" << std::endl;
-    std::cout << pkcs11_cert3.to_string();
+    std::cout << pkcs11_cert3.to_string() << std::endl;
     std::cout << "----------------------" << std::endl;
     
-    // Re-init the token with e.g command line:
-    // softhsm2-util --init-token --token "Token-1" --label "Token-1"
-    
+    pkcs11_cert.destroy();
+    //pkcs11_cert2.destroy(); // pkcs11_cert2 was created using the handle of pkcs11_cert
+    //pkcs11_cert3.destroy(); // pkcs11_cert3 was created using the handle from a search to find pkcs11_cert
+    aSession.logoff();
+
+    std::cout << "-- X509_Certificate root.x509_version() --" << std::endl;
+    std::cout << root.x509_version() << std::endl;
+    std::cout << "----------------------" << std::endl;
+    // Test with gmock
+    testing::InitGoogleMock(&argc,argv);
+    X509_Certificate_MOCK root_MOCK("../../botan/src/tests/data/x509/nist/root.crt");
+    EXPECT_CALL(root_MOCK, x509_version())
+        .WillOnce(Return(666));
+    uint32_t root_x509_version_MOCK = root_MOCK.x509_version();
+    std::cout << "-- X509_Certificate_MOCK root_MOCK.x509_version() --" << std::endl;
+    std::cout << root_x509_version_MOCK << std::endl;
+    std::cout << "----------------------" << std::endl;
+
+        
    	return 2;
    	}
