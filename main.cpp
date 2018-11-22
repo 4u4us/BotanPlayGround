@@ -9,8 +9,10 @@
 #include <botan/rng.h>
 #include <botan/auto_rng.h>
 #include <botan/p11_x509.h>
+#include <botan/p11_ecdh.h>
 #include <botan/x509_dn.h>
 #include <botan/der_enc.h>
+
 
 //#if defined(BOTAN_HAS_OPENSSL)
 //   #include <botan/internal/openssl.h>
@@ -125,6 +127,29 @@ int main(int argc, char* argv[])
     //pkcs11_cert3.destroy(); // pkcs11_cert3 was created using the handle from a search to find pkcs11_cert
     aSession.logoff();
 
+    std::cout << "-- Import ECDH private key import --" << std::endl; 
+    aSession.login( Botan::PKCS11::UserType::User, so_pin ); // login as user for key import
+    // create ecdh private key
+    ECDH_PrivateKey priv_key(*rng_a, EC_Group("secp256r1"));
+    priv_key.set_parameter_encoding(EC_Group_Encoding::EC_DOMPAR_ENC_OID);
+    // import to card
+    EC_PrivateKeyImportProperties propsk(priv_key.DER_domain(), priv_key.private_value());
+    propsk.set_token(true);
+    propsk.set_private(true);
+    propsk.set_derive(true);
+    propsk.set_extractable(true);
+    // label
+    std::string label = "Botan test ecdh key";
+    propsk.set_label(label);
+    PKCS11_ECDH_PrivateKey pk(aSession, propsk);
+    Object pk_a(aSession, pk.handle());
+    secure_vector<uint8_t> key_label = pk_a.get_attribute_value(AttributeType::Label);
+    std::string key_label_str(key_label.begin(),key_label.end());
+    std::cout << key_label_str << std::endl; 
+    std::cout << "-- ECDH private key import was successful --" << std::endl; 
+    pk.destroy();
+    aSession.logoff();
+    
     std::cout << "-- X509_Certificate root.x509_version() --" << std::endl;
     std::cout << root.x509_version() << std::endl;
     std::cout << "----------------------" << std::endl;
