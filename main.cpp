@@ -25,7 +25,8 @@ using testing::Return; // for gmock
 class X509_Certificate_MOCK : public X509_Certificate
    {
     public:
-        X509_Certificate_MOCK(const std::string& fname) : X509_Certificate(fname) {};
+        //X509_Certificate_MOCK(const std::string& fname) : X509_Certificate(fname) {};
+        X509_Certificate_MOCK(const std::string& fname){};
         MOCK_METHOD0(x509_version, uint32_t(void));
 
    };
@@ -79,7 +80,8 @@ int main(int argc, char* argv[])
     
     std::cout << "-- Importing to a token a PKCS11 X509: " << std::endl;
     //Botan::X509_Certificate root("../../botan/src/tests/data/x509/nist/root.crt");
-    Botan::X509_Certificate root("../../botan/src/tests/data/x509/ecc/root2_SHA256.cer");
+    //Botan::X509_Certificate root("../../BOTAN/botan/src/tests/data/x509/ecc/root2_SHA256.cer");
+    Botan::X509_Certificate root("/home/eric/BOTAN/botan/src/tests/data/x509/ecc/root2_SHA256.cer");
     
     // set props
     Botan::PKCS11::X509_CertificateProperties props(
@@ -155,7 +157,7 @@ int main(int argc, char* argv[])
     std::cout << "----------------------" << std::endl;
     // Test with gmock
     testing::InitGoogleMock(&argc,argv);
-    X509_Certificate_MOCK root_MOCK("../../botan/src/tests/data/x509/nist/root.crt");
+    X509_Certificate_MOCK root_MOCK("../../BOTAN/botan/src/tests/data/x509/nist/root.crt");
     EXPECT_CALL(root_MOCK, x509_version())
         .WillOnce(Return(666));
     uint32_t root_x509_version_MOCK = root_MOCK.x509_version();
